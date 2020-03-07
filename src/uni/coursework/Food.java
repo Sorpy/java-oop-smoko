@@ -1,8 +1,7 @@
 package uni.coursework;
 
-public class Food extends GameBlock {
+public class Food {
     private boolean isMovingFood;
-    private GameField gameField;
 
     public boolean isMovingFood() {
         return isMovingFood;
