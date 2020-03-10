@@ -7,38 +7,44 @@ import uni.coursework.entity.SnakePart;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Random;
 
-public class GameRunner extends JFrame implements Runnable,KeyListener {
+public class GameRunner extends JFrame implements Runnable,KeyListener, ActionListener {
 
     private Block block;
-    private ArrayList<Block> snake;
-    private ArrayList<Block> food;
-    private ArrayList<Block> obstacles;
+    private ArrayList<SnakePart> snake;
+    private ArrayList<Food> food;
+    private ArrayList<Obstacle> obstacles;
     private int score = 0;
     //private Point snakePoint;
     private int xCoordinate;
     private int yCoordinate;
-    private int ticks;
+    private int foodMoveTick;
     private Random r;
+    private Thread thread;
 
     private int size = 8;
-
-    private Thread thread;
 
     private boolean isAlive;
 
     private String moveDirection;
+
+    private Button pauseButton =new Button("Pause");
+    private Button restartButton = new Button("Restart");
+    boolean isThreadActive;
 
     public GameRunner(){
         initBoard();
         //this.snakePoint = new Point();
         r = new Random();
         isAlive=true;
-        ticks= 0;
+        foodMoveTick = 0;
         moveDirection="U";
         snake = new ArrayList<>();
         food= new ArrayList<>();
@@ -47,8 +53,16 @@ public class GameRunner extends JFrame implements Runnable,KeyListener {
         xCoordinate=20;
         yCoordinate=20;
         addObstacle();
+        isThreadActive = true;
         thread =new Thread(this);
         thread.start();
+        pauseButton.setBounds(450,100,50,50);
+        pauseButton.addActionListener(this);
+        add(pauseButton);
+
+        restartButton.setBounds(450,200,50,50);
+        restartButton.addActionListener(this);
+        add(restartButton);
 
 
     }
@@ -58,22 +72,23 @@ public class GameRunner extends JFrame implements Runnable,KeyListener {
         int secondWall = 30;
         for (int j =0;j<20;j++){
             block = new Obstacle(firstWall,j);
-            obstacles.add(block);
+            obstacles.add((Obstacle) block);
             block = new Obstacle(secondWall,40-j);
-            obstacles.add(block);
+            obstacles.add((Obstacle) block);
         }
 
     }
 
     private void initBoard() {
-        setSize(Constants.FIELD_WIDTH*Constants.BLOCK_SIZE +Constants.BLOCK_SIZE,
-                Constants.FIELD_HEIGHT*Constants.BLOCK_SIZE +Constants.BLOCK_SIZE);
+        setSize(Constants.FIELD_WIDTH*Constants.BLOCK_SIZE +Constants.BLOCK_SIZE*20,
+                Constants.FIELD_HEIGHT*Constants.BLOCK_SIZE +Constants.BLOCK_SIZE*20);
         setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         addKeyListener(this);
         setVisible(true);
         setFocusable(true);
         setLocationRelativeTo(null);
+        setLayout(null);
         //getRootPane().setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
     }
@@ -91,21 +106,85 @@ public class GameRunner extends JFrame implements Runnable,KeyListener {
             }
         }
     }
-    public void gameTick(){
+    private void gameTick(){
         //init snake
         if (snake.size()==0){
             block = new SnakePart(xCoordinate, yCoordinate);
-            snake.add(block);
+            snake.add((SnakePart) block);
         }
 
         //create/consume food
-        if (food.size()==0){
-            createFood();
-        } else {
+        if (!(food.size()==r.nextInt(4))){
             eatFood();
+        } else {
+            createFood();
         }
         moveSnake();
         checkSnakeCollision();
+        if (!food.isEmpty()) {
+            foodMoveTick++;
+            for (int i = 0; i < food.size(); i++) {
+                if (food.get(i).isMovingFood()&& foodMoveTick>3) {
+                    moveFood(checkFoodMovement(food.get(i)),food.get(i));
+                    foodMoveTick=0;
+                }
+            }
+        }
+    }
+
+    private void moveFood(ArrayList<Food> moveList,Food movedFood) {
+        block = moveList.get(r.nextInt(moveList.size()));
+        food.add((Food) block);
+
+        food.remove(movedFood);
+    }
+
+    private ArrayList<Food> checkFoodMovement(Food food) {
+        ArrayList<Food> possibleMoves = new ArrayList<>();
+
+        for (Obstacle obstacle: obstacles) {
+
+            possibleMoves.add(new Food(true,
+                    food.getxCoordinate()-1,
+                    food.getyCoordinate()));
+
+            if (obstacle.getxCoordinate()==food.getxCoordinate()-1 &&
+                food.getxCoordinate()-1 >0 &&
+                obstacle.getyCoordinate()==food.getyCoordinate()){
+                possibleMoves.remove(possibleMoves.size()-1);
+
+            }
+            possibleMoves.add(new Food(true,
+                    food.getxCoordinate()+1,
+                    food.getyCoordinate()));
+
+            if (obstacle.getxCoordinate()==food.getxCoordinate()+1 &&
+                food.getxCoordinate()+1 <39 &&
+                obstacle.getyCoordinate()==food.getyCoordinate()){
+                possibleMoves.remove(possibleMoves.size()-1);
+
+            }
+            possibleMoves.add(new Food(true,
+                    food.getxCoordinate(),
+                    food.getyCoordinate()-1));
+
+            if (obstacle.getxCoordinate()==food.getxCoordinate() &&
+                obstacle.getyCoordinate()==food.getyCoordinate()-1&&
+                food.getyCoordinate()-1>0){
+                possibleMoves.remove(possibleMoves.size()-1);
+
+            }
+            possibleMoves.add(new Food(true,
+                    food.getxCoordinate(),
+                    food.getyCoordinate()+1));
+            if (obstacle.getxCoordinate()==food.getxCoordinate() &&
+                obstacle.getyCoordinate()==food.getyCoordinate()+1 &&
+                food.getyCoordinate()+1>39){
+                possibleMoves.remove(possibleMoves.size()-1);
+
+            }
+        }
+        return possibleMoves;
     }
 
     private void checkSnakeCollision() {
@@ -152,7 +231,7 @@ public class GameRunner extends JFrame implements Runnable,KeyListener {
             yCoordinate=39;
         }
         block = new SnakePart(xCoordinate, yCoordinate);
-        snake.add(block);
+        snake.add((SnakePart) block);
 
         if (snake.size()>size){
             snake.remove(0);
@@ -161,17 +240,23 @@ public class GameRunner extends JFrame implements Runnable,KeyListener {
     }
 
     private void eatFood() {
-        if (xCoordinate==food.get(0).getxCoordinate() &&
-                yCoordinate== food.get(0).getyCoordinate()){
-            food.remove(0);
-            size++;
+        for (Iterator<Food> foodIterator = food.iterator(); foodIterator.hasNext();){
+            Food currentFood = foodIterator.next();
+            if (xCoordinate==currentFood.getxCoordinate() &&
+                    yCoordinate== currentFood.getyCoordinate()){
+                if (currentFood.isMovingFood()) score+=15;
+                else score+=10;
+                foodIterator.remove();
+                size++;
+            }
         }
     }
 
     private void createFood() {
         boolean isFoodValid = false;
         while(!isFoodValid){
-            block = new Food(true,r.nextInt(Constants.FIELD_HEIGHT),r.nextInt(Constants.FIELD_WIDTH));
+            boolean isMovingFood = 0== r.nextInt(3);
+            block = new Food(isMovingFood,r.nextInt(Constants.FIELD_HEIGHT),r.nextInt(Constants.FIELD_WIDTH));
             boolean addFood = true;
             for (Block snakePart :snake) {
                 if (block.getxCoordinate()==snakePart.getxCoordinate()&&
@@ -186,7 +271,7 @@ public class GameRunner extends JFrame implements Runnable,KeyListener {
                 }
             }
             if (addFood) {
-                food.add(block);
+                food.add((Food) block);
                 repaint();
                 isFoodValid=true;
             }
@@ -195,6 +280,10 @@ public class GameRunner extends JFrame implements Runnable,KeyListener {
 
     @Override
     public void paint(Graphics g){
+//
+//        pauseButton.setLocation(450,100);
+//        restartButton.setLocation(450,200);
+
         g.setColor(Color.BLACK);
         g.fillRect(0, 0,Constants.FIELD_WIDTH*Constants.BLOCK_SIZE, Constants.FIELD_HEIGHT*Constants.BLOCK_SIZE);
 
@@ -207,6 +296,12 @@ public class GameRunner extends JFrame implements Runnable,KeyListener {
         for(int i = 0; i < obstacles.size(); i++) {
             obstacles.get(i).drawPart(g);
         }
+
+        g.setColor(new Color(31, 224, 255));
+        g.fillRect(0,400,400,100);
+        g.setColor(Color.BLACK);
+        g.setFont(new Font("TimesRoman", Font.PLAIN, 20));
+        g.drawString("Score" + score,200,440);
     }
 
     @Override
@@ -246,4 +341,23 @@ public class GameRunner extends JFrame implements Runnable,KeyListener {
     }
 
 
+    @Override
+    public void actionPerformed(ActionEvent e) {
+
+        if (e.getSource().equals(pauseButton)){
+            if (isThreadActive){
+                thread.suspend();
+                isThreadActive= false;
+            }
+            else {
+                thread.resume();
+                isThreadActive =true;
+            }
+        } else if (e.getSource().equals(restartButton)){
+            getContentPane().removeAll();
+            new GameRunner();
+            getContentPane().validate();
+            getContentPane().repaint();
+        }
+    }
 }
