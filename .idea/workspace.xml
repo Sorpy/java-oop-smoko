@@ -2,9 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="32f7ccfc-5a8a-483f-aba9-16c84214bb6e" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/java-oop-smoko/uni/coursework/GameRunner.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/java-oop-smoko/uni/coursework/GameRunner.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/uni/coursework/GameBoard.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/uni/coursework/GameRunner.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/uni/coursework/GameRunner.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -69,8 +66,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/uni/coursework/GameRunner.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="444">
-              <caret line="246" column="31" selection-start-line="246" selection-start-column="31" selection-end-line="246" selection-end-column="31" />
+            <state relative-caret-position="206">
+              <caret line="304" column="38" selection-start-line="304" selection-start-column="38" selection-end-line="304" selection-end-column="38" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -358,7 +355,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/uni/coursework/GameRunner.java</url>
-          <line>347</line>
+          <line>364</line>
           <properties />
           <option name="timeStamp" value="37" />
         </line-breakpoint>
@@ -501,8 +498,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/uni/coursework/GameRunner.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="444">
-          <caret line="246" column="31" selection-start-line="246" selection-start-column="31" selection-end-line="246" selection-end-column="31" />
+        <state relative-caret-position="206">
+          <caret line="304" column="38" selection-start-line="304" selection-start-column="38" selection-end-line="304" selection-end-column="38" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>

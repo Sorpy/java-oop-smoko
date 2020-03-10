@@ -219,15 +219,15 @@ public class GameRunner extends JFrame implements Runnable,KeyListener, ActionLi
                 break;
         }
         if (xCoordinate>39){
-            xCoordinate=0;
+            xCoordinate=1;
         }
         if (yCoordinate>39){
-            yCoordinate=0;
+            yCoordinate=1;
         }
-        if (xCoordinate<0){
+        if (xCoordinate<1){
             xCoordinate=39;
         }
-        if (yCoordinate<0){
+        if (yCoordinate<1){
             yCoordinate=39;
         }
         block = new SnakePart(xCoordinate, yCoordinate);
@@ -297,11 +297,28 @@ public class GameRunner extends JFrame implements Runnable,KeyListener, ActionLi
             obstacles.get(i).drawPart(g);
         }
 
+        if (score>=30){
+            gameOutcome(g,"WINNER WINNER!!");
+        }
+
+        if (!isAlive){
+            gameOutcome(g,"YOU LOST!!!");
+        }
+
         g.setColor(new Color(31, 224, 255));
         g.fillRect(0,400,400,100);
         g.setColor(Color.BLACK);
         g.setFont(new Font("TimesRoman", Font.PLAIN, 20));
         g.drawString("Score" + score,200,440);
+    }
+
+    private void gameOutcome(Graphics g,String string){
+        thread.stop();
+        g.setColor(Color.black);
+        g.fillRect(0, 0,Constants.FIELD_WIDTH*Constants.BLOCK_SIZE, Constants.FIELD_HEIGHT*Constants.BLOCK_SIZE);
+        g.setColor(Color.RED);
+        g.setFont(new Font("TimesRoman", Font.PLAIN, 18));
+        g.drawString(string,50,200);
     }
 
     @Override
